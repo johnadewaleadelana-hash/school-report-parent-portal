@@ -7,27 +7,33 @@ let reportData = null;
 let studentData = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🔍 Report viewer loaded');
+    
     // Check if logged in
     const storedStudent = sessionStorage.getItem('parentStudent');
     if (!storedStudent) {
-        window.location.href = 'parent-login.html';
+        console.log('❌ No student found, redirecting to login');
+        window.location.href = 'index.html';
         return;
     }
     
     try {
         studentData = JSON.parse(storedStudent);
+        console.log('✅ Student data loaded:', studentData['Full Name']);
         
-        // Get report data (from session or fetch)
+        // Get report data
         const storedReport = sessionStorage.getItem('parentReport');
         if (storedReport) {
             reportData = JSON.parse(storedReport);
+            console.log('📊 Report data from session');
             renderReport();
         } else {
+            console.log('📊 Fetching fresh report data...');
             await fetchReport();
         }
     } catch (e) {
-        console.error('Error loading report:', e);
-        showError('Unable to load report. Please try again.');
+        console.error('❌ Error loading report:', e);
+        showError('Unable to load report. Please go back and try again.');
     }
 });
 
@@ -41,11 +47,15 @@ async function fetchReport() {
             </div>
         `;
         
+        // Get cumulative report for the student
         reportData = await api.getReport(studentData['Student ID'], 'Term3');
+        console.log('✅ Report data fetched:', reportData);
+        
+        // Store in session for next time
         sessionStorage.setItem('parentReport', JSON.stringify(reportData));
         renderReport();
     } catch (error) {
-        console.error('Error fetching report:', error);
+        console.error('❌ Error fetching report:', error);
         showError('Unable to fetch report data. Please try again.');
     }
 }
@@ -71,13 +81,11 @@ function renderReport() {
     const gpa = reportData.gpa || 0;
     const headComment = reportData.headTeacherComment || '';
     const promotion = reportData.promotion || {};
-    const behavioral = reportData.behavioral || {};
-    const comments = reportData.comments || {};
     
     // Build HTML
     let html = `
         <!-- Report Header -->
-        <div class="card shadow-lg mb-4">
+        <div class="card shadow-lg mb-4" id="reportCard">
             <div class="card-header bg-primary text-white text-center py-4">
                 <h2 class="mb-0">${CONFIG.SCHOOL_NAME}</h2>
                 <p class="mb-0">${CONFIG.SCHOOL_MOTTO}</p>
@@ -100,7 +108,7 @@ function renderReport() {
                         <h5><i class="fas fa-chart-bar"></i> Summary</h5>
                         <table class="table table-sm table-borderless">
                             <tr><td><strong>Average:</strong></td><td><span class="badge bg-primary">${avg.toFixed(2)}%</span></td></tr>
-                            <tr><td><strong>Grade:</strong></td><td><span class="badge grade-badge" style="background-color:${api.getGradeColor(grade).color};color:#fff;">${grade}</span></td></tr>
+                            <tr><td><strong>Grade:</strong></td><td><span class="badge" style="background-color:${api.getGradeColor(grade).color};color:#fff;">${grade}</span></td></tr>
                             <tr><td><strong>GPA:</strong></td><td><span class="badge bg-info">${gpa.toFixed(2)}</span></td></tr>
                             <tr><td><strong>Subjects:</strong></td><td>${scores.length}</td></tr>
                             <tr><td><strong>Status:</strong></td><td>${promotion.promoted ? '✅ Promoted' : '📚 In Progress'}</td></tr>
@@ -126,22 +134,26 @@ function renderReport() {
                         <tbody>
     `;
     
-    scores.forEach(subject => {
-        const cumulative = subject.cumulative || 0;
-        const grade = subject.grade || 'F';
-        const gradeInfo = api.getGradeColor(grade);
-        html += `
-            <tr>
-                <td><strong>${subject.subject}</strong></td>
-                <td>${subject.term1 || '-'}</td>
-                <td>${subject.term2 || '-'}</td>
-                <td>${subject.term3 || '-'}</td>
-                <td><strong>${cumulative.toFixed(2)}</strong></td>
-                <td><span class="badge" style="background-color:${gradeInfo.color};color:#fff;">${grade}</span></td>
-                <td><small>${subject.remark || '-'}</small></td>
-            </tr>
-        `;
-    });
+    if (scores.length === 0) {
+        html += `<tr><td colspan="7" class="text-center">No subject scores available</td></tr>`;
+    } else {
+        scores.forEach(subject => {
+            const cumulative = subject.cumulative || 0;
+            const grade = subject.grade || 'F';
+            const gradeInfo = api.getGradeColor(grade);
+            html += `
+                <tr>
+                    <td><strong>${subject.subject}</strong></td>
+                    <td>${subject.term1 || '-'}</td>
+                    <td>${subject.term2 || '-'}</td>
+                    <td>${subject.term3 || '-'}</td>
+                    <td><strong>${cumulative.toFixed(2)}</strong></td>
+                    <td><span class="badge" style="background-color:${gradeInfo.color};color:#fff;padding:4px 10px;">${grade}</span></td>
+                    <td><small>${subject.remark || '-'}</small></td>
+                </tr>
+            `;
+        });
+    }
     
     html += `
                         </tbody>
@@ -161,22 +173,19 @@ function renderReport() {
                         <tbody>
     `;
     
-    // Get behavioral data
     const behavioralData = reportData.behavioral || {};
     const behavioralScores = behavioralData.term3 || [];
     if (behavioralScores.length > 0) {
         behavioralScores.forEach(item => {
             const domainName = item['Domain Name'] || item['Domain ID'];
             const score = item['Score'] || 0;
-            const rubric = api.getRubric ? api.getRubric(score) : null;
+            const scoreClass = score >= 4 ? 'bg-success' : score >= 3 ? 'bg-warning' : 'bg-danger';
             html += `
                 <tr>
                     <td>${domainName}</td>
                     <td>
-                        <span class="badge ${score >= 4 ? 'bg-success' : score >= 3 ? 'bg-warning' : 'bg-danger'}" 
-                              style="font-size:1rem;padding:8px 12px;">
+                        <span class="badge ${scoreClass}" style="font-size:1rem;padding:8px 12px;">
                             ${score}/5
-                            ${rubric ? `- ${rubric.Label}` : ''}
                         </span>
                     </td>
                 </tr>
@@ -196,7 +205,7 @@ function renderReport() {
                 <div class="card bg-light mb-2">
                     <div class="card-body">
                         <h6>Tutor's Comment</h6>
-                        <p class="mb-0">${comments.term3?.tutor || comments.Tutor_Comment || 'No comment'}</p>
+                        <p class="mb-0">${reportData.comments?.term3?.tutor || 'No comment'}</p>
                     </div>
                 </div>
                 <div class="card bg-light">
@@ -236,7 +245,12 @@ function showError(message) {
 
 // Download PDF
 function downloadPDF() {
-    const element = document.getElementById('reportContainer');
+    const element = document.getElementById('reportCard');
+    if (!element) {
+        alert('Report not ready. Please wait...');
+        return;
+    }
+    
     const opt = {
         margin: 10,
         filename: `${CONFIG.PDF_FILENAME_PREFIX}${studentData['Full Name'] || 'student'}_${CONFIG.CURRENT_TERM}.pdf`,
@@ -245,12 +259,34 @@ function downloadPDF() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
+    // Show loading
+    const btn = document.querySelector('.btn-success');
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.disabled = true;
+    }
+    
     html2pdf()
         .set(opt)
         .from(element)
         .save()
+        .then(() => {
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-download"></i> PDF';
+                btn.disabled = false;
+            }
+        })
         .catch(error => {
             console.error('PDF generation error:', error);
             alert('Unable to generate PDF. Please try using the print function.');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-download"></i> PDF';
+                btn.disabled = false;
+            }
         });
+}
+
+// Print Report
+function printReport() {
+    window.print();
 }
