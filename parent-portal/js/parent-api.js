@@ -400,6 +400,46 @@ async call(action, params = {}, method = 'GET') {
     }
 }
 
+// ============================================
+// SUBJECT METHODS
+// ============================================
+
+/**
+ * Get all subjects
+ * @param {string} className - Optional class filter
+ * @returns {Array} List of subjects
+ */
+async getSubjects(className = null) {
+    return await this.call('getSubjects', { class: className });
+}
+
+/**
+ * Add a new subject
+ * @param {Object} data - Subject data
+ * @returns {Object} Result
+ */
+async addSubject(data) {
+    return await this.call('addSubject', data);
+}
+
+/**
+ * Update a subject
+ * @param {Object} data - Subject data with subjectId
+ * @returns {Object} Result
+ */
+async updateSubject(data) {
+    return await this.call('updateSubject', data);
+}
+
+/**
+ * Delete a subject
+ * @param {Object} data - Subject data with subjectId
+ * @returns {Object} Result
+ */
+async deleteSubject(data) {
+    return await this.call('deleteSubject', { subjectId: data.subjectId });
+}
+
 // Create global instance
 const api = new ParentAPI();
 console.log('✅ ParentAPI initialized');
