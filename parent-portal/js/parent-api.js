@@ -398,9 +398,8 @@ async call(action, params = {}, method = 'GET') {
             day: 'numeric'
         });
     }
-}
 
-// ============================================
+    // ============================================
 // SUBJECT METHODS
 // ============================================
 
@@ -439,6 +438,9 @@ async updateSubject(data) {
 async deleteSubject(data) {
     return await this.call('deleteSubject', { subjectId: data.subjectId });
 }
+}
+
+
 
 // Create global instance
 const api = new ParentAPI();
