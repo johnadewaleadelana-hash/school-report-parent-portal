@@ -319,7 +319,37 @@ async call(action, params = {}, method = 'GET') {
     async getTeacherAnalysis(teacherId) {
         return await this.call('getTeacherAnalysis', { teacherId });
     }
+    
+    // ============================================
+    // TEACHER METHODS
+    // ============================================
 
+    /**
+     * Add a new teacher
+     * @param {Object} data - Teacher data
+     * @returns {Object} Result
+     */
+    async addTeacher(data) {
+        return await this.call('addTeacher', data);
+    }
+
+    /**
+     * Update a teacher
+     * @param {Object} data - Teacher data with teacherId
+     * @returns {Object} Result
+     */
+    async updateTeacher(data) {
+        return await this.call('updateTeacher', data);
+    }
+
+    /**
+     * Delete a teacher
+     * @param {string} teacherId - Teacher ID
+     * @returns {Object} Result
+     */
+    async deleteTeacher(data) {
+        return await this.call('deleteTeacher', { teacherId: data.teacherId });
+    }
     // ============================================
     // UTILITY METHODS
     // ============================================
