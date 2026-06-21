@@ -193,6 +193,9 @@ function editStudent(studentId) {
     studentModal.show();
 }
 
+// js/admin-students.js - Updated saveStudent()
+// ============================================
+
 async function saveStudent() {
     const btn = document.getElementById('saveStudentBtn');
     const text = document.getElementById('saveBtnText');
@@ -238,19 +241,22 @@ async function saveStudent() {
         if (studentId && isEditing) {
             // Update existing student
             data.studentId = studentId;
+            console.log('📤 Updating student:', data);
             result = await api.call('updateStudent', data, 'POST');
             showToast('Student updated successfully!', 'success');
         } else {
             // Add new student
+            console.log('📤 Adding student:', data);
             result = await api.call('addStudent', data, 'POST');
             showToast('Student added successfully!', 'success');
         }
 
+        console.log('✅ Result:', result);
         studentModal.hide();
         loadStudents();
 
     } catch (error) {
-        console.error('Error saving student:', error);
+        console.error('❌ Error saving student:', error);
         showFormError(error.message || 'Error saving student');
     } finally {
         btn.disabled = false;
@@ -275,6 +281,9 @@ function deleteStudent(studentId, studentName) {
     deleteModal.show();
 }
 
+// js/admin-students.js - Updated confirmDelete()
+// ============================================
+
 async function confirmDelete() {
     const btn = document.getElementById('confirmDeleteBtn');
     const text = document.getElementById('deleteBtnText');
@@ -286,12 +295,19 @@ async function confirmDelete() {
     spinner.classList.remove('d-none');
 
     try {
+        console.log('📤 Deleting student:', studentId);
         const result = await api.call('deleteStudent', { studentId: studentId }, 'POST');
-        showToast('Student marked as inactive', 'success');
-        deleteModal.hide();
-        loadStudents();
+        console.log('✅ Result:', result);
+        
+        if (result.success) {
+            showToast('Student deleted successfully!', 'success');
+            deleteModal.hide();
+            loadStudents();
+        } else {
+            showToast(result.error || 'Error deleting student', 'danger');
+        }
     } catch (error) {
-        console.error('Error deleting student:', error);
+        console.error('❌ Error deleting student:', error);
         showToast('Error deleting student: ' + error.message, 'danger');
     } finally {
         btn.disabled = false;

@@ -14,12 +14,21 @@ class ParentAPI {
     // BASE API CALL
     // ============================================
 
+    // js/parent-api.js - Updated call() method
+// ============================================
+
     async call(action, params = {}, method = 'GET') {
         try {
+            console.log(`📤 API Call: ${action} (${method})`, params);
+            
             const url = new URL(this.apiUrl);
             
+            // Add authentication params
             params.schoolId = this.schoolId;
             params.apiKey = this.apiKey;
+            
+            let response;
+            let result;
             
             if (method === 'GET') {
                 url.searchParams.append('action', action);
@@ -29,38 +38,41 @@ class ParentAPI {
                     }
                 });
                 
-                const response = await fetch(url.toString());
-                const result = await response.json();
+                console.log('📤 Fetching URL:', url.toString());
+                response = await fetch(url.toString());
+                result = await response.json();
                 
-                if (result.status === 'error') {
-                    throw new Error(result.data.error || 'API error');
-                }
-                
-                return result.data;
             } else {
-                const response = await fetch(url.toString(), {
+                // POST request
+                const body = JSON.stringify({
+                    action: action,
+                    ...params,
+                    schoolId: this.schoolId,
+                    apiKey: this.apiKey
+                });
+                console.log('📤 POST Body:', body);
+                
+                response = await fetch(url.toString(), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        action: action,
-                        ...params,
-                        schoolId: this.schoolId,
-                        apiKey: this.apiKey
-                    })
+                    body: body
                 });
                 
-                const result = await response.json();
-                
-                if (result.status === 'error') {
-                    throw new Error(result.data.error || 'API error');
-                }
-                
-                return result.data;
+                result = await response.json();
             }
+            
+            console.log(`📥 Response (${action}):`, result);
+            
+            if (result.status === 'error') {
+                throw new Error(result.data.error || 'API error');
+            }
+            
+            return result.data;
+            
         } catch (error) {
-            console.error('API Error:', error);
+            console.error(`❌ API Error (${action}):`, error);
             throw error;
         }
     }
