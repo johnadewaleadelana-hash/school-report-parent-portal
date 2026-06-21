@@ -196,13 +196,15 @@ function editStudent(studentId) {
 // js/admin-students.js - Updated saveStudent()
 // ============================================
 
+// js/admin-students.js - Updated saveStudent()
+// ============================================
+
 async function saveStudent() {
     const btn = document.getElementById('saveStudentBtn');
     const text = document.getElementById('saveBtnText');
     const spinner = document.getElementById('saveBtnSpinner');
     const errorDiv = document.getElementById('formError');
 
-    // Get form data
     const studentId = document.getElementById('editStudentId').value;
     const fullName = document.getElementById('studentName').value.trim();
     const className = document.getElementById('studentClass').value;
@@ -211,7 +213,6 @@ async function saveStudent() {
     const status = document.getElementById('studentStatus').value;
     const admissionDate = document.getElementById('studentAdmissionDate').value;
 
-    // Validate
     if (!fullName) {
         showFormError('Please enter student name');
         return;
@@ -221,7 +222,6 @@ async function saveStudent() {
         return;
     }
 
-    // Show loading
     btn.disabled = true;
     text.classList.add('d-none');
     spinner.classList.remove('d-none');
@@ -239,15 +239,14 @@ async function saveStudent() {
 
         let result;
         if (studentId && isEditing) {
-            // Update existing student
             data.studentId = studentId;
             console.log('📤 Updating student:', data);
-            result = await api.call('updateStudent', data, 'POST');
+            // Remove 'POST' - use GET by default
+            result = await api.call('updateStudent', data);
             showToast('Student updated successfully!', 'success');
         } else {
-            // Add new student
             console.log('📤 Adding student:', data);
-            result = await api.call('addStudent', data, 'POST');
+            result = await api.call('addStudent', data);
             showToast('Student added successfully!', 'success');
         }
 
@@ -258,6 +257,40 @@ async function saveStudent() {
     } catch (error) {
         console.error('❌ Error saving student:', error);
         showFormError(error.message || 'Error saving student');
+    } finally {
+        btn.disabled = false;
+        text.classList.remove('d-none');
+        spinner.classList.add('d-none');
+    }
+}
+
+// Updated confirmDelete()
+async function confirmDelete() {
+    const btn = document.getElementById('confirmDeleteBtn');
+    const text = document.getElementById('deleteBtnText');
+    const spinner = document.getElementById('deleteBtnSpinner');
+    const studentId = document.getElementById('deleteStudentId').value;
+
+    btn.disabled = true;
+    text.classList.add('d-none');
+    spinner.classList.remove('d-none');
+
+    try {
+        console.log('📤 Deleting student:', studentId);
+        // Remove 'POST' - use GET by default
+        const result = await api.call('deleteStudent', { studentId: studentId });
+        console.log('✅ Result:', result);
+        
+        if (result.success) {
+            showToast('Student deleted successfully!', 'success');
+            deleteModal.hide();
+            loadStudents();
+        } else {
+            showToast(result.error || 'Error deleting student', 'danger');
+        }
+    } catch (error) {
+        console.error('❌ Error deleting student:', error);
+        showToast('Error deleting student: ' + error.message, 'danger');
     } finally {
         btn.disabled = false;
         text.classList.remove('d-none');

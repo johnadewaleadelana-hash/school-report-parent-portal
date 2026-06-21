@@ -17,65 +17,50 @@ class ParentAPI {
     // js/parent-api.js - Updated call() method
 // ============================================
 
-    async call(action, params = {}, method = 'GET') {
-        try {
-            console.log(`📤 API Call: ${action} (${method})`, params);
-            
-            const url = new URL(this.apiUrl);
-            
-            // Add authentication params
-            params.schoolId = this.schoolId;
-            params.apiKey = this.apiKey;
-            
-            let response;
-            let result;
-            
-            if (method === 'GET') {
-                url.searchParams.append('action', action);
-                Object.entries(params).forEach(([key, value]) => {
-                    if (value !== undefined && value !== null) {
-                        url.searchParams.append(key, value);
-                    }
-                });
-                
-                console.log('📤 Fetching URL:', url.toString());
-                response = await fetch(url.toString());
-                result = await response.json();
-                
-            } else {
-                // POST request
-                const body = JSON.stringify({
-                    action: action,
-                    ...params,
-                    schoolId: this.schoolId,
-                    apiKey: this.apiKey
-                });
-                console.log('📤 POST Body:', body);
-                
-                response = await fetch(url.toString(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: body
-                });
-                
-                result = await response.json();
+    // js/parent-api.js - Updated call() method (GET only)
+// ============================================
+
+async call(action, params = {}, method = 'GET') {
+    try {
+        console.log(`📤 API Call: ${action}`, params);
+        
+        const url = new URL(this.apiUrl);
+        
+        // Add action and authentication params
+        url.searchParams.append('action', action);
+        url.searchParams.append('schoolId', this.schoolId);
+        url.searchParams.append('apiKey', this.apiKey);
+        
+        // Add all other params
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                // Convert objects to JSON strings
+                if (typeof value === 'object') {
+                    url.searchParams.append(key, JSON.stringify(value));
+                } else {
+                    url.searchParams.append(key, value);
+                }
             }
-            
-            console.log(`📥 Response (${action}):`, result);
-            
-            if (result.status === 'error') {
-                throw new Error(result.data.error || 'API error');
-            }
-            
-            return result.data;
-            
-        } catch (error) {
-            console.error(`❌ API Error (${action}):`, error);
-            throw error;
+        });
+        
+        console.log('📤 Fetching URL:', url.toString());
+        
+        const response = await fetch(url.toString());
+        const result = await response.json();
+        
+        console.log(`📥 Response (${action}):`, result);
+        
+        if (result.status === 'error') {
+            throw new Error(result.data.error || 'API error');
         }
+        
+        return result.data;
+        
+    } catch (error) {
+        console.error(`❌ API Error (${action}):`, error);
+        throw error;
     }
+}
 
     // ============================================
     // PARENT PORTAL METHODS
