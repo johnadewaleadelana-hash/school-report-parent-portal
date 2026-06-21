@@ -219,6 +219,37 @@ class ParentAPI {
             day: 'numeric'
         });
     }
+
+    // ============================================
+    // ADMIN METHODS
+    // ============================================
+
+    /**
+     * Add a new student
+     * @param {Object} data - Student data
+     * @returns {Object} Result
+     */
+    async addStudent(data) {
+        return await this.call('addStudent', data, 'POST');
+    }
+
+    /**
+     * Update a student
+     * @param {Object} data - Student data with studentId
+     * @returns {Object} Result
+     */
+    async updateStudent(data) {
+        return await this.call('updateStudent', data, 'POST');
+    }
+
+    /**
+     * Delete a student (soft delete)
+     * @param {string} studentId - Student ID
+     * @returns {Object} Result
+     */
+    async deleteStudent(studentId) {
+        return await this.call('deleteStudent', { studentId: studentId }, 'POST');
+    }
 }
 
 // Create global instance
