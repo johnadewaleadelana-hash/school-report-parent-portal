@@ -49,7 +49,7 @@
             <div class="col-md-3">
                 <div class="card text-white bg-primary mb-3">
                     <div class="card-body">
-                        <h6 class="card-title"><i class="fas fa-users"></i> Students</h6>
+                        <h6 class="card-title"><i class="fas fa-user-graduate"></i> Students</h6>
                         <h2 id="totalStudents">0</h2>
                     </div>
                 </div>
@@ -73,8 +73,8 @@
             <div class="col-md-3">
                 <div class="card text-white bg-warning mb-3">
                     <div class="card-body">
-                        <h6 class="card-title"><i class="fas fa-file-pdf"></i> Reports</h6>
-                        <h2 id="totalReports">0</h2>
+                        <h6 class="card-title"><i class="fas fa-users"></i> Classes</h6>
+                        <h2 id="totalClasses">0</h2>
                     </div>
                 </div>
             </div>
@@ -89,57 +89,71 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3">
-                                <a href="admin-students.html" class="btn btn-outline-primary w-100 mb-2">
-                                    <i class="fas fa-user-plus"></i> Manage Students
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-students.html'" style="cursor:pointer;">
+                                    <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                                    <h6 class="mt-2 mb-0">Students</h6>
+                                    <small class="text-muted">Manage student records</small>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <a href="admin-teachers.html" class="btn btn-outline-success w-100 mb-2">
-                                    <i class="fas fa-user-tie"></i> Manage Teachers
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-teachers.html'" style="cursor:pointer;">
+                                    <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
+                                    <h6 class="mt-2 mb-0">Teachers</h6>
+                                    <small class="text-muted">Manage teachers</small>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <a href="admin-subjects.html" class="btn btn-outline-info w-100 mb-2">
-                                    <i class="fas fa-book"></i> Manage Subjects
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-subjects.html'" style="cursor:pointer;">
+                                    <i class="fas fa-book fa-2x text-info"></i>
+                                    <h6 class="mt-2 mb-0">Subjects</h6>
+                                    <small class="text-muted">Manage subjects</small>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <a href="admin-pins.html" class="btn btn-outline-warning w-100 mb-2">
-                                    <i class="fas fa-key"></i> Manage PINs
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="admin-classes.html" class="btn btn-outline-warning w-100 mb-2">
-                                    <i class="fas fa-key"></i> Manage Classes
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-classes.html'" style="cursor:pointer;">
+                                    <i class="fas fa-users fa-2x text-purple"></i>
+                                    <h6 class="mt-2 mb-0">Classes</h6>
+                                    <small class="text-muted">Manage classes & promotion</small>
+                                </div>
                             </div>
                         </div>
-                        <div class="row mt-2">
-                            <div class="col-md-3">
-                                <a href="admin-settings.html" class="btn btn-outline-secondary w-100 mb-2">
-                                    <i class="fas fa-cog"></i> Settings
-                                </a>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-pins.html'" style="cursor:pointer;">
+                                    <i class="fas fa-key fa-2x text-warning"></i>
+                                    <h6 class="mt-2 mb-0">PINs</h6>
+                                    <small class="text-muted">Generate and manage PINs</small>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <a href="admin-reports.html" class="btn btn-outline-danger w-100 mb-2">
-                                    <i class="fas fa-file-alt"></i> Reports
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-settings.html'" style="cursor:pointer;">
+                                    <i class="fas fa-cog fa-2x text-secondary"></i>
+                                    <h6 class="mt-2 mb-0">Settings</h6>
+                                    <small class="text-muted">School configuration</small>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <a href="admin-classes.html" class="btn btn-outline-blue w-100 mb-2">
-                                    <i class="fas fa-chart-pie"></i> Analytics
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-reports.html'" style="cursor:pointer;">
+                                    <i class="fas fa-file-alt fa-2x text-danger"></i>
+                                    <h6 class="mt-2 mb-0">Reports</h6>
+                                    <small class="text-muted">Generate reports</small>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <a href="admin-analytics.html" class="btn btn-outline-purple w-100 mb-2">
-                                    <i class="fas fa-chart-pie"></i> Analytics
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="#" class="btn btn-outline-dark w-100 mb-2" onclick="refreshData()">
-                                    <i class="fas fa-sync"></i> Refresh
-                                </a>
+                            <div class="col-md-3 mb-3">
+                                <div class="quick-action-card text-center p-3 border rounded" 
+                                     onclick="location.href='admin-analytics.html'" style="cursor:pointer;">
+                                    <i class="fas fa-chart-pie fa-2x text-dark"></i>
+                                    <h6 class="mt-2 mb-0">Analytics</h6>
+                                    <small class="text-muted">View analytics</small>
+                                </div>
                             </div>
                         </div>
                     </div>
