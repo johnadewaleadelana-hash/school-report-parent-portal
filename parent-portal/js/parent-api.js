@@ -431,6 +431,45 @@ async updateSubject(data) {
 async deleteSubject(data) {
     return await this.call('deleteSubject', { subjectId: data.subjectId });
 }
+
+// ============================================
+// CLASS METHODS
+// ============================================
+
+/**
+ * Get all classes
+ * @returns {Array} List of classes
+ */
+async getClasses() {
+    return await this.call('getClasses');
+}
+
+/**
+ * Add a new class
+ * @param {Object} data - Class data
+ * @returns {Object} Result
+ */
+async addClass(data) {
+    return await this.call('addClass', data);
+}
+
+/**
+ * Update a class
+ * @param {Object} data - Class data with classId
+ * @returns {Object} Result
+ */
+async updateClass(data) {
+    return await this.call('updateClass', data);
+}
+
+/**
+ * Delete a class
+ * @param {Object} data - Class data with classId
+ * @returns {Object} Result
+ */
+async deleteClass(data) {
+    return await this.call('deleteClass', { classId: data.classId });
+}
 }
 
 // Create global instance
