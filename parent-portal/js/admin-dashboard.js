@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
+// js/admin-dashboard.js - Updated loadStats()
+// ============================================
+
 async function loadStats() {
     try {
         // Get students
@@ -29,8 +32,9 @@ async function loadStats() {
         const subjects = await api.getSubjects();
         document.getElementById('totalSubjects').textContent = subjects.length || 0;
         
-        // Reports (simulated)
-        document.getElementById('totalReports').textContent = '12';
+        // Get classes
+        const classes = await api.getClasses();
+        document.getElementById('totalClasses').textContent = classes.length || 0;
         
     } catch (error) {
         console.error('Error loading stats:', error);
