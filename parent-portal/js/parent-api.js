@@ -177,14 +177,7 @@ async call(action, params = {}, method = 'GET') {
         return await this.call('getTeachers');
     }
 
-    /**
-     * Get all subjects
-     * @param {string} className - Optional class filter
-     * @returns {Array} List of subjects
-     */
-    async getSubjects(className = null) {
-        return await this.call('getSubjects', { class: className });
-    }
+    
 
     /**
      * Get all classes
@@ -439,8 +432,6 @@ async deleteSubject(data) {
     return await this.call('deleteSubject', { subjectId: data.subjectId });
 }
 }
-
-
 
 // Create global instance
 const api = new ParentAPI();
