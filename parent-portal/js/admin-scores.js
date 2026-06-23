@@ -1,7 +1,6 @@
-// js/admin-scores.js
+// js/admin-scores.js - COMPLETE FIXED VERSION
 // ============================================
 // Admin - Score Management Logic
-// ============================================
 
 let currentStudents = [];
 let currentScores = [];
@@ -10,14 +9,12 @@ let autoSaveTimer = null;
 let isSaving = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check admin session
     const adminSession = sessionStorage.getItem('adminSession');
     if (!adminSession) {
         window.location.href = 'admin-login.html';
         return;
     }
 
-    // Load subjects when class changes
     document.getElementById('scoreClass').addEventListener('change', loadStudentsAndSubjects);
     document.getElementById('scoreSubject').addEventListener('change', loadScores);
     document.getElementById('scoreTerm').addEventListener('change', loadScores);
@@ -42,20 +39,15 @@ async function loadStudentsAndSubjects() {
     }
 
     try {
-        // Load students
         currentStudents = await api.getStudents(className);
-        
-        // Load subjects for this class
         currentSubjects = await api.getSubjects(className);
         
-        // Populate subject dropdown
         const subjectSelect = document.getElementById('scoreSubject');
         subjectSelect.innerHTML = '<option value="">Select Subject...</option>';
         currentSubjects.forEach(subject => {
             subjectSelect.innerHTML += `<option value="${subject['Subject ID']}">${subject['Subject Name']}</option>`;
         });
         
-        // Load scores for the first subject
         if (currentSubjects.length > 0) {
             subjectSelect.value = currentSubjects[0]['Subject ID'];
             loadScores();
@@ -72,22 +64,17 @@ async function loadScores() {
     const subjectId = document.getElementById('scoreSubject').value;
     const term = document.getElementById('scoreTerm').value;
     
-    if (!className || !subjectId) {
-        return;
-    }
+    if (!className || !subjectId) return;
 
     try {
-        // Get all scores for this class and subject
         const allScores = await api.getStudentScores(null, term);
         currentScores = allScores.filter(s => s['Subject ID'] === subjectId);
         
-        // Match scores with students
         const scoresMap = {};
         currentScores.forEach(score => {
             scoresMap[score['Student ID']] = score;
         });
         
-        // Build the table
         renderScoresTable(scoresMap);
         updateSummary(scoresMap);
         
@@ -190,50 +177,62 @@ function renderScoresTable(scoresMap) {
 
 function onScoreChange(input) {
     const row = input.closest('tr');
+    if (!row) return;
+    
     const studentId = row.dataset.studentId;
     
-    // Get values
-    const ca1 = parseFloat(row.querySelector('[data-field="ca1"]').value) || 0;
-    const ca2 = parseFloat(row.querySelector('[data-field="ca2"]').value) || 0;
-    const exam = parseFloat(row.querySelector('[data-field="exam"]').value) || 0;
+    const ca1Input = row.querySelector('[data-field="ca1"]');
+    const ca2Input = row.querySelector('[data-field="ca2"]');
+    const examInput = row.querySelector('[data-field="exam"]');
     
-    // Validate
-    if (ca1 > 20) { row.querySelector('[data-field="ca1"]').value = 20; }
-    if (ca2 > 20) { row.querySelector('[data-field="ca2"]').value = 20; }
-    if (exam > 60) { row.querySelector('[data-field="exam"]').value = 60; }
+    if (!ca1Input || !ca2Input || !examInput) return;
     
-    // Calculate total
-    const total = ca1 + ca2 + exam;
+    const ca1 = parseFloat(ca1Input.value) || 0;
+    const ca2 = parseFloat(ca2Input.value) || 0;
+    const exam = parseFloat(examInput.value) || 0;
+    
+    if (ca1 > 20) ca1Input.value = 20;
+    if (ca2 > 20) ca2Input.value = 20;
+    if (exam > 60) examInput.value = 60;
+    
+    const total = Math.min(ca1, 20) + Math.min(ca2, 20) + Math.min(exam, 60);
     const grade = calculateGrade(total);
     const remark = calculateRemark(total);
     const gradeColor = getGradeColor(grade);
     
-    // Update display
-    row.querySelector('.total-cell').textContent = total || '-';
+    const totalCell = row.querySelector('.total-cell');
     const gradeSpan = row.querySelector('.grade-cell .grade-badge');
-    gradeSpan.textContent = grade;
-    gradeSpan.style.backgroundColor = gradeColor;
-    gradeSpan.style.color = '#fff';
-    gradeSpan.style.padding = '4px 10px';
-    gradeSpan.style.borderRadius = '4px';
-    row.querySelector('.remark-cell').textContent = remark;
+    const remarkCell = row.querySelector('.remark-cell');
     
-    // Update stats
+    if (totalCell) totalCell.textContent = total || '-';
+    if (gradeSpan) {
+        gradeSpan.textContent = grade;
+        gradeSpan.style.backgroundColor = gradeColor;
+        gradeSpan.style.color = '#fff';
+        gradeSpan.style.padding = '4px 10px';
+        gradeSpan.style.borderRadius = '4px';
+    }
+    if (remarkCell) remarkCell.textContent = remark;
+    
     updateSummaryFromTable();
-    
-    // Auto-save
-    triggerAutoSave(studentId, ca1, ca2, exam, total, grade, remark);
+    triggerAutoSave(studentId, Math.min(ca1, 20), Math.min(ca2, 20), Math.min(exam, 60));
 }
 
 // ============================================
 // AUTO-SAVE
 // ============================================
 
-function triggerAutoSave(studentId, ca1, ca2, exam, total, grade, remark) {
+function triggerAutoSave(studentId, ca1, ca2, exam) {
     clearTimeout(autoSaveTimer);
     
-    document.getElementById('savedIndicator').classList.remove('show');
-    document.getElementById('autoSaveStatus').textContent = 'Saving...';
+    const savedIndicator = document.getElementById('savedIndicator');
+    const autoSaveStatus = document.getElementById('autoSaveStatus');
+    
+    if (savedIndicator) savedIndicator.classList.remove('show');
+    if (autoSaveStatus) {
+        autoSaveStatus.textContent = 'Saving...';
+        autoSaveStatus.style.color = '#6c757d';
+    }
     
     autoSaveTimer = setTimeout(async function() {
         try {
@@ -250,13 +249,18 @@ function triggerAutoSave(studentId, ca1, ca2, exam, total, grade, remark) {
                 comment: ''
             });
             
-            document.getElementById('savedIndicator').classList.add('show');
-            document.getElementById('autoSaveStatus').textContent = 'Saved';
+            if (savedIndicator) savedIndicator.classList.add('show');
+            if (autoSaveStatus) {
+                autoSaveStatus.textContent = 'Saved';
+                autoSaveStatus.style.color = '#28a745';
+            }
             
         } catch (error) {
             console.error('Auto-save error:', error);
-            document.getElementById('autoSaveStatus').textContent = 'Error saving';
-            document.getElementById('autoSaveStatus').style.color = '#dc3545';
+            if (autoSaveStatus) {
+                autoSaveStatus.textContent = 'Error saving';
+                autoSaveStatus.style.color = '#dc3545';
+            }
         }
     }, 1000);
 }
@@ -270,9 +274,12 @@ async function saveAllScores() {
     isSaving = true;
     
     const btn = document.querySelector('.btn-success');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    btn.disabled = true;
+    const originalText = btn ? btn.innerHTML : 'Save All';
+    
+    if (btn) {
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        btn.disabled = true;
+    }
     
     try {
         const term = document.getElementById('scoreTerm').value;
@@ -288,10 +295,6 @@ async function saveAllScores() {
             
             if (ca1 === 0 && ca2 === 0 && exam === 0) continue;
             
-            const total = ca1 + ca2 + exam;
-            const grade = calculateGrade(total);
-            const remark = calculateRemark(total);
-            
             await api.call('saveScores', {
                 studentId: studentId,
                 subjectId: subjectId,
@@ -304,15 +307,21 @@ async function saveAllScores() {
             saved++;
         }
         
-        showToast(`Saved ${saved} score records!`, 'success');
-        document.getElementById('savedIndicator').classList.add('show');
+        showToast(`✅ Saved ${saved} score records!`, 'success');
+        
+        const indicator = document.getElementById('savedIndicator');
+        if (indicator) indicator.classList.add('show');
+        
+        updateSummaryFromTable();
         
     } catch (error) {
         console.error('Error saving scores:', error);
         showToast('Error saving scores: ' + error.message, 'danger');
     } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
         isSaving = false;
     }
 }
@@ -336,16 +345,13 @@ async function copyFromPrevious() {
         return;
     }
     
-    if (!confirm('This will overwrite current scores. Continue?')) {
-        return;
-    }
+    if (!confirm('This will overwrite current scores. Continue?')) return;
     
     try {
         const previousTerm = currentTerm - 1;
         const allScores = await api.getStudentScores(null, previousTerm);
         const previousScores = allScores.filter(s => s['Subject ID'] === subjectId);
         
-        // Fill in the scores
         const rows = document.querySelectorAll('#scoresContainer tbody tr');
         let filled = 0;
         
@@ -354,10 +360,15 @@ async function copyFromPrevious() {
             const prevScore = previousScores.find(s => s['Student ID'] === studentId);
             
             if (prevScore) {
-                row.querySelector('[data-field="ca1"]').value = prevScore['CA1'] || 0;
-                row.querySelector('[data-field="ca2"]').value = prevScore['CA2'] || 0;
-                row.querySelector('[data-field="exam"]').value = prevScore['Exam'] || 0;
-                onScoreChange(row.querySelector('[data-field="ca1"]'));
+                const ca1Input = row.querySelector('[data-field="ca1"]');
+                const ca2Input = row.querySelector('[data-field="ca2"]');
+                const examInput = row.querySelector('[data-field="exam"]');
+                
+                if (ca1Input) ca1Input.value = prevScore['CA1'] || 0;
+                if (ca2Input) ca2Input.value = prevScore['CA2'] || 0;
+                if (examInput) examInput.value = prevScore['Exam'] || 0;
+                
+                if (ca1Input) onScoreChange(ca1Input);
                 filled++;
             }
         }
@@ -389,9 +400,17 @@ function updateSummary(scoresMap) {
         }
     });
     
-    document.getElementById('totalStudentsStat').textContent = total;
-    document.getElementById('scoresEnteredStat').textContent = total > 0 ? Math.round((filled/total)*100) + '%' : '0%';
-    document.getElementById('classAverageStat').textContent = scoreCount > 0 ? (totalScore/scoreCount).toFixed(1) : '0.0';
+    const totalStudentsStat = document.getElementById('totalStudentsStat');
+    const scoresEnteredStat = document.getElementById('scoresEnteredStat');
+    const classAverageStat = document.getElementById('classAverageStat');
+    
+    if (totalStudentsStat) totalStudentsStat.textContent = total;
+    if (scoresEnteredStat) {
+        scoresEnteredStat.textContent = total > 0 ? Math.round((filled/total)*100) + '%' : '0%';
+    }
+    if (classAverageStat) {
+        classAverageStat.textContent = scoreCount > 0 ? (totalScore/scoreCount).toFixed(1) : '0.0';
+    }
 }
 
 function updateSummaryFromTable() {
@@ -403,7 +422,7 @@ function updateSummaryFromTable() {
     
     rows.forEach(row => {
         const totalCell = row.querySelector('.total-cell');
-        if (totalCell && totalCell.textContent !== '-') {
+        if (totalCell && totalCell.textContent && totalCell.textContent !== '-') {
             const score = parseFloat(totalCell.textContent);
             if (score > 0) {
                 filled++;
@@ -413,9 +432,17 @@ function updateSummaryFromTable() {
         }
     });
     
-    document.getElementById('totalStudentsStat').textContent = total;
-    document.getElementById('scoresEnteredStat').textContent = total > 0 ? Math.round((filled/total)*100) + '%' : '0%';
-    document.getElementById('classAverageStat').textContent = scoreCount > 0 ? (totalScore/scoreCount).toFixed(1) : '0.0';
+    const totalStudentsStat = document.getElementById('totalStudentsStat');
+    const scoresEnteredStat = document.getElementById('scoresEnteredStat');
+    const classAverageStat = document.getElementById('classAverageStat');
+    
+    if (totalStudentsStat) totalStudentsStat.textContent = total;
+    if (scoresEnteredStat) {
+        scoresEnteredStat.textContent = total > 0 ? Math.round((filled/total)*100) + '%' : '0%';
+    }
+    if (classAverageStat) {
+        classAverageStat.textContent = scoreCount > 0 ? (totalScore/scoreCount).toFixed(1) : '0.0';
+    }
 }
 
 // ============================================
@@ -448,6 +475,7 @@ function getGradeColor(grade) {
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toastMessage');
     const body = document.getElementById('toastBody');
+    if (!toast) return;
     
     toast.className = `toast align-items-center text-white border-0 bg-${type}`;
     body.textContent = message;
