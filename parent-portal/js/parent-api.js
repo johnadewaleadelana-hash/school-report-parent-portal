@@ -92,12 +92,7 @@ async call(action, params = {}, method = 'GET') {
         return report;
     }
 
-    async getStudentScores(studentId, term) {
-        return await this.call('getStudentScores', { 
-            studentId: studentId, 
-            term: term 
-        });
-    }
+    
 
     async getAttendance(studentId, term) {
         return await this.call('getAttendance', { 
