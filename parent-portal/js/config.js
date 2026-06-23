@@ -9,7 +9,7 @@ const CONFIG = {
     // ============================================
     
     // Your Google Apps Script Web App URL
-    API_URL: 'https://script.google.com/macros/s/AKfycbztNgvk30wEG0Z2YMkA194Nd_Am8QV6fNFmfAEiqf5M_U1_Jl5OQcce0XyqFz8Ij5OcCA/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbwZg09H43KAlBM_CERK6pxM4cjKkSqn4ep5L3KnAllGWk-_rohH2NoB9w-_oALXv8USvA/exec',
     
     // School credentials
     SCHOOL_ID: 'SCH001',

@@ -470,6 +470,32 @@ async updateClass(data) {
 async deleteClass(data) {
     return await this.call('deleteClass', { classId: data.classId });
 }
+
+// ============================================
+// SCORE METHODS
+// ============================================
+
+/**
+ * Get student scores
+ * @param {string} studentId - Student ID (optional, null for all)
+ * @param {number} term - Term number
+ * @returns {Array} Scores
+ */
+async getStudentScores(studentId = null, term = null) {
+    const params = {};
+    if (studentId) params.studentId = studentId;
+    if (term) params.term = term;
+    return await this.call('getStudentScores', params);
+}
+
+/**
+ * Save scores
+ * @param {Object} data - Score data
+ * @returns {Object} Result
+ */
+async saveScores(data) {
+    return await this.call('saveScores', data);
+}
 }
 
 // Create global instance
