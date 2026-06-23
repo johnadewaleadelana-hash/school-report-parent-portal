@@ -482,13 +482,13 @@ async getStudentScores(studentId = null, term = null) {
     if (term) params.term = term;
     return await this.call('getStudentScores', params);
 }
-
-/**
+ /**   
  * Save scores
  * @param {Object} data - Score data
  * @returns {Object} Result
  */
 async saveScores(data) {
+    // Remove the 'POST' parameter - use GET by default
     return await this.call('saveScores', data);
 }
 }
