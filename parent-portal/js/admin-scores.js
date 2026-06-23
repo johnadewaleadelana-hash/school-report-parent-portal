@@ -248,7 +248,7 @@ function triggerAutoSave(studentId, ca1, ca2, exam, total, grade, remark) {
                 ca2: ca2,
                 exam: exam,
                 comment: ''
-            }, 'POST');
+            });
             
             document.getElementById('savedIndicator').classList.add('show');
             document.getElementById('autoSaveStatus').textContent = 'Saved';
@@ -300,7 +300,7 @@ async function saveAllScores() {
                 ca2: ca2,
                 exam: exam,
                 comment: ''
-            }, 'POST');
+            });
             saved++;
         }
         
